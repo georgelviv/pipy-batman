@@ -1,0 +1,23 @@
+{
+  "name": "pipy-batman",
+  "version": "0.0.1",
+  "description": "Pipy batman is batman element from pipy project. Batman receivews data over BLE and sendts it over ethernet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/georgelviv/pipy-batman.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/georgelviv/pipy-batman/issues"
+  },
+  "homepage": "https://github.com/georgelviv/pipy-batman#readme",
+  "dependencies": {
+    "noble": "^1.9.1",
+    "websocket": "^1.0.26"
+  }
+}
