@@ -5,6 +5,5 @@ Pipy batman is batman element from pipy project. Batman receives data over BLE a
 1) Install node modules (with --unsafe-perm)
 2) node index.js
 
-
 # Some info about me
 ip: 192.168.31.72
