@@ -15,22 +15,19 @@ class Batman {
   }
 
   readSensorData(cb) {
-    characteristic.read((msg) => {
-      cb(msg);
-    });
+    this.bleService.read(cb);
   }
 
-  handleWSSMsg(msg) {
-    console.log('message received', msg);
+  handleWSSMsg(message) {
     switch (message.type) {
       case 'request':
         if (message.data === 'get_dht_sensor_data') {
           this.readSensorData((data) => {
-            connection.sendMsg({
+            this.wssConnection.sendMsg({
               type: 'response',
               data: data
             })
-          })
+          });
         }
     }
   }
@@ -38,7 +35,9 @@ class Batman {
   onWSConnection(connection) {
     this.wssConnection = connection;
 
-    connection.onMsg(message => this.handleWSSMsg);
+    connection.onMsg(message => {
+      this.handleWSSMsg(message)
+    });
   }
 
   connectToBLE() {

@@ -3,11 +3,11 @@ class WSSConnection {
     this.connection = connection;
   
     this.connection.on('error', err => {
-      this.log(`connection error: ${ err }`);
+      console.log(`connection error: ${ err }`);
     });
 
     this.connection.on('close', () => {
-      this.log('connection closed');
+      console.log('connection closed');
     });
   }
 

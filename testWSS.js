@@ -1,28 +1,63 @@
+const { BLETarget, WSServer } = require('./configs');
 const WSClient = require('./src').WSClient;
-const wsClient = new WSClient({
-  port: WSServer.port,
-  serverLink: WSServer.ip,
-  onConnection: onWSConnection
-});
 
-function onWSConnection(connection) {
-  connection.onMsg(message => {
+class Batman {
+  constructor(configs) {
+    this.configs = configs;
+
+    this.connectToWSS();
+  }
+
+  onCharacteristicReceive(characteristic) {
+    this.bleService = characteristic;
+    this.connectToWSS();
+  }
+
+  readSensorData(cb) {
+    setTimeout(() => {
+      cb({ 
+        date: new Date(),
+        type: 'text',
+        data: { temperature: '28.0*C', humidity: '20.0%' },
+        rssi: -79 
+      });
+    }, 200);
+  }
+
+  handleWSSMsg(message) {
     switch (message.type) {
       case 'request':
         if (message.data === 'get_dht_sensor_data') {
-          readSensorData((data) => {
-            connection.sendMsg({
+          this.readSensorData((data) => {
+            console.log(data);
+            this.wssConnection.sendMsg({
               type: 'response',
               data: data
             })
-          })
+          });
         }
     }
-  });
+  }
+
+  onWSConnection(connection) {
+    this.wssConnection = connection;
+
+    connection.onMsg(message => {
+      this.handleWSSMsg(message)
+    });
+  }
+
+  connectToWSS() {
+    const { WSServer } = this.configs;
+
+    const wsClient = new WSClient({
+      port: WSServer.port,
+      serverLink: WSServer.ip,
+      onConnection: this.onWSConnection.bind(this)
+    });
+  }
 }
 
-function readSensorData(cb) {
-  setTimeout(() => {
-    cb({ data: '120px' });
-  }, 1000);
-}
+new Batman({
+  WSServer, BLETarget
+});
