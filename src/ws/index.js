@@ -1,4 +1,5 @@
 const WebsocketClient = require('websocket').client;
+const WSConnection = require('./connection');
 
 class WSClient {
 
@@ -27,16 +28,8 @@ class WSClient {
     });
 
     client.on('connect', (connection) => {
-      this.connection = connection;
+      this.connection = new WSConnection(connection);
       this.log('connected');
-
-      this.connection.on('error', err => {
-        this.log(`connection error: ${ err }`);
-      });
-
-      this.connection.on('close', () => {
-        this.log('connection closed');
-      });
 
       this.settings.onConnection(this.connection);
     });

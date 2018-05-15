@@ -1,33 +1,64 @@
-const { BLETarget } = require('./configs');
-// const WSClient = require('batman').WSClient;
-// const wsClient = new WSClient({
-//   port: deadpoolPi.port,
-//   serverLink: deadpoolPi.ip,
-//   onConnection: onWSConnection
-// });
-
-// function onWSConnection(connection) {
-//   connection.on('message', (message) => {
-//     console.log(message);
-//   });
-
-//   setTimeout(() => {
-//     connection.sendUTF('Hello my dear');
-//   }, 500);
-// }
-
-
+const { BLETarget, WSServer } = require('./configs');
 const initBLE = require('./src').BLE.initBLE;
+const WSClient = require('./src').WSClient;
 
-initBLE({
-  config: BLETarget,
-  onCharacteristicReceive: onCharacteristicReceive
-});
+class Batman {
+  constructor(configs) {
+    this.configs = configs;
 
-function onCharacteristicReceive(characteristic) {
-  characteristic.read((msg) => {
-    console.log('Time passed:', Date.now() - (new Date(msg.date).getTime()));
+    this.connectToBLE();
+  }
 
-    console.log(msg.data);
-  });
+  onCharacteristicReceive(characteristic) {
+    this.bleService = characteristic;
+    this.connectToWSS();
+  }
+
+  readSensorData(cb) {
+    characteristic.read((msg) => {
+      cb(msg);
+    });
+  }
+
+  handleWSSMsg(msg) {
+    console.log('message received', msg);
+    switch (message.type) {
+      case 'request':
+        if (message.data === 'get_dht_sensor_data') {
+          this.readSensorData((data) => {
+            connection.sendMsg({
+              type: 'response',
+              data: data
+            })
+          })
+        }
+    }
+  }
+
+  onWSConnection(connection) {
+    this.wssConnection = connection;
+
+    connection.onMsg(message => this.handleWSSMsg);
+  }
+
+  connectToBLE() {
+    initBLE({
+      config: this.configs.BLETarget,
+      onCharacteristicReceive: this.onCharacteristicReceive.bind(this)
+    });
+  }
+
+  connectToWSS() {
+    const { WSServer } = this.configs;
+
+    const wsClient = new WSClient({
+      port: WSServer.port,
+      serverLink: WSServer.ip,
+      onConnection: this.onWSConnection.bind(this)
+    });
+  }
 }
+
+new Batman({
+  WSServer, BLETarget
+});
