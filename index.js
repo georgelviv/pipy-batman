@@ -17,7 +17,7 @@ const { BLETarget } = require('./configs');
 // }
 
 
-const initBLE = require('./src').initBLE;
+const initBLE = require('./src').BLE.initBLE;
 
 initBLE({
   config: BLETarget,

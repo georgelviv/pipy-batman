@@ -1,4 +1,4 @@
 module.exports = {
-  initBLE: require('./ble'),
+  BLE: require('./ble'),
   WSClient: require('./ws')
 };
