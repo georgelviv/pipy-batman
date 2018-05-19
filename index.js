@@ -24,8 +24,10 @@ class Batman {
         if (message.data === 'get_dht_sensor_data') {
           this.readSensorData((data) => {
             this.wssConnection.sendMsg({
+              to: message.from,
               type: 'response',
-              data: data
+              data: data,
+              date: new Date()
             })
           });
         }
@@ -37,6 +39,11 @@ class Batman {
 
     connection.onMsg(message => {
       this.handleWSSMsg(message)
+    });
+
+    connection.sendMsg({
+      type: 'meta',
+      name: 'batman'
     });
   }
 
