@@ -28,7 +28,7 @@ class Batman {
               from: 'batman',
               type: 'response',
               data: data,
-              date: new Date()
+              messageDate: new Date()
             })
           });
         }
