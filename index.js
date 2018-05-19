@@ -25,6 +25,7 @@ class Batman {
           this.readSensorData((data) => {
             this.wssConnection.sendMsg({
               to: message.from,
+              from: 'batman',
               type: 'response',
               data: data,
               date: new Date()
