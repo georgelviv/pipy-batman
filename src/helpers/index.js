@@ -1,3 +1,5 @@
 module.exports = {
-  onExit: require('./onExit')
+  onExit: require('./onExit'),
+  syncTime: require('./syncTime'),
+  getTimeDiff: require('./getTimeDiff')
 };

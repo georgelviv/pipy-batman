@@ -2,6 +2,8 @@ const { BLETarget, WSServer } = require('./configs');
 const initBLE = require('./src').BLE.initBLE;
 const WSClient = require('./src').WSClient;
 
+const getTimeDiff = require('./src/helpers').getTimeDiff;
+
 class Batman {
   constructor(configs) {
     this.configs = configs;
@@ -22,13 +24,14 @@ class Batman {
     switch (message.type) {
       case 'request':
         if (message.data === 'get_dht_sensor_data') {
+          const timeBeforeSensorRead = new Date();
           this.readSensorData((data) => {
+            data.bluetoothLatency = getTimeDiff(timeBeforeSensorRead);
             this.wssConnection.sendMsg({
               to: message.from,
               from: 'batman',
               type: 'response',
               data: data,
-              messageDate: new Date()
             })
           });
         }
