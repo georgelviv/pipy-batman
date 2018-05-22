@@ -32,6 +32,7 @@ class Batman {
               from: 'batman',
               type: 'response',
               data: data,
+              messageTime: message.date
             })
           });
         }
