@@ -39,7 +39,7 @@ class WSClient {
 
       this.settings.onConnection(this.connection);
 
-      this.connection.onConnectionCloseCb(this.reconnect.bind(this, client));
+      this.connection.onConnectionClose(this.reconnect.bind(this, client));
     });
 
     this.connectToWS(client);
