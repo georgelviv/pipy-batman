@@ -65,7 +65,8 @@ class Batman {
     const wsClient = new WSClient({
       port: WSServer.port,
       serverLink: WSServer.ip,
-      onConnection: this.onWSConnection.bind(this)
+      onConnection: this.onWSConnection.bind(this),
+      reconnectTimeout: WSServer.reconnectTimeout
     });
   }
 }

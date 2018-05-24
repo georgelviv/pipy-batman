@@ -8,6 +8,7 @@ module.exports = {
   },
   WSServer: {
     port: '8080',
-    ip: '169.254.51.1'
+    ip: '169.254.51.1',
+    reconnectTimeout: 5000
   }
 };
