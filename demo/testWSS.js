@@ -1,5 +1,5 @@
-const { BLETarget, WSServer } = require('./configs');
-const WSClient = require('./src').WSClient;
+const { WSServer } = require('../configs');
+const WSClient = require('../src').WSClient;
 
 class Batman {
   constructor(configs) {
@@ -59,5 +59,5 @@ class Batman {
 }
 
 new Batman({
-  WSServer, BLETarget
+  WSServer
 });

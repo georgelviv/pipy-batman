@@ -1,0 +1,5 @@
+{ type: 'text',
+  data:
+   { temperature: '30.0*C',
+     humidity: '18.0%',
+     sensorReadLatancy: 1761 }

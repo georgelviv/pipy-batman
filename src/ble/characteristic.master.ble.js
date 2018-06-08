@@ -4,7 +4,7 @@ class BLEMasterCharacteristic {
   constructor({characteristic, device}) {
     this.characteristic = characteristic;
     this.device = device;
-    this.address = characteristic._noble.address;
+    this.address = device.address;
     this.uuid = characteristic.uuid;
     this.value;
   }
@@ -18,6 +18,7 @@ class BLEMasterCharacteristic {
   }
 
   read(cb = () => {}) {
+    this._log('reading');
     this.characteristic.read((err, value) => {
       if (err) throw err;
 
@@ -26,6 +27,8 @@ class BLEMasterCharacteristic {
       } else {
         this.value.addData(value);
       }
+
+      this._log('readed');
       
       if (this.value.hasNext()) {
         this.read(cb);
@@ -33,6 +36,10 @@ class BLEMasterCharacteristic {
         this.sendReadedData(cb);
       }
     });
+  }
+
+  _log(msg) {
+    console.log(`BLE ${ this.address } ${ this.uuid }: ${ msg }`);
   }
 }
 

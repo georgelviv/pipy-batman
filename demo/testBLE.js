@@ -1,6 +1,6 @@
-const { BLETarget } = require('./configs');
-const initBLE = require('./src').BLE.initBLE;
-const getTimeDiff = require('./src/helpers').getTimeDiff;
+const { BLETarget } = require('../configs');
+const initBLE = require('../src').BLE.initBLE;
+const getTimeDiff = require('../src/helpers').getTimeDiff;
 
 initBLE({
   config: BLETarget,

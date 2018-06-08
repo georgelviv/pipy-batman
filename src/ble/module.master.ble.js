@@ -19,135 +19,114 @@ class BLEModule {
     this.currentState = '';
     this.ee = new EventEmitter();
 
-    this.preserveContenxt([
-      'onStateChange', 'onDiscover', 'onDeviceConnect', 'handleWarnings', 'onExit'
+    this._preserveContenxt([
+      'onStateChange', 'onDiscover', 'handleWarnings', 'onExit'
     ]);
 
-    noble.on('stateChange', this.onStateChange);
-    noble.on('discover', this.onDiscover);
-    noble.on('warning', this.handleWarnings);
-    onExit(this.onExit);
+    noble.on('stateChange', this._onStateChange);
+    noble.on('discover', this._onDiscover);
+    noble.on('warning', this._handleWarnings);
+
+    onExit(this._onExit);
+
+    this._sayGreetings();
   }
 
-  onExit() {
+  findDevice(lookingAddress, callback) {
+    this._log(`looking for next uuid: ${ lookingAddress }`);
+
+    const lookingDevice = this._getDeviceByAddress(lookingAddress);
+    if (lookingDevice) return lookingDevice;
+      
+    let cb = (device) => {
+      if (device.address !== lookingAddress) return;
+      this._stopScanning();
+      this.ee.removeListener(BLE_MODULE_EVENTS.discovered, cb);
+      callback(device);
+    }
+
+    this.ee.on(BLE_MODULE_EVENTS.discovered, cb);
+    this._scan();
+  }
+
+  _sayGreetings() {
+    this.address = noble.address;
+    if (this.address !=='unknown') {
+      this._log(`Hello!, my address is: ${ noble.address }`);
+    }
+  }
+
+  _onExit() {
     this.devices.forEach(device => {
       device.disconect(() => {
-        this.log(`disconeected from ${ device.address }`);
+        this._log(`disconeected from ${ device.address }`);
       })
     });
-    this.stopScanning();
+    this._stopScanning();
   }
 
-  findDeviceCharacteristic({deviceAddress, characteristicUUID}, cb = () => {}) {
-    const device = this.devices.find(({ address }) => deviceAddress);
-
-    this.log(`device ${ deviceAddress } looking for character with next uuid`);
-    this.log(characteristicUUID);
-    device.findCharacteristic(characteristicUUID, (characteristic) => {
-      this.log(`device ${ deviceAddress } founded character with next uuid`);
-      this.log(characteristicUUID);
-      cb(characteristic);
-    });
+  _handleWarnings(msg) {
+    this._log(`warning: ${ msg }`);
   }
 
-  handleWarnings(msg) {
-    this.log(`warning: ${ msg }`);
-  }
-
-  preserveContenxt(methods = []) {
+  _preserveContenxt(methods = []) {
     methods.forEach(methodName => {
-      this[methodName] = this[methodName].bind(this);
+      this[`_${methodName}`] = this[`_${methodName}`].bind(this);
     })
   }
 
-  onDiscover(device) {
+  _onDiscover(device) {
     const bleDevice = new BLEDevice(device);
-    this.log(`founded device with address: ${ bleDevice.address }`);
+    this._log(`founded device with next address: ${ device.address }`);
     this.devices.push(bleDevice);
     this.ee.emit(BLE_MODULE_EVENTS.discovered, bleDevice);
   }
 
-  onStateChange(state) {
+  _onStateChange(state) {
     this.currentState = state;
-    this.log(`state changed to: ${ state }`);
+    this._log(`state changed to: ${ state }`);
     this.ee.emit(BLE_MODULE_EVENTS.stateChange, state);
 
     if (this.isScanning && this.currentState !== BLE_MODULE_STATE.poweredOn) {
-      this.stopScanning();
+      this._stopScanning();
     }
   }
 
-  connectToDevice(address, callback) {
-    const lookingDevice = this.getDeviceByAddress(address);
-    if (lookingDevice) {
-      lookingDevice.connect(this.onDeviceConnect.bind(this, callback));
-      return;
-    }
-    let cb = (device) => {
-      if (device.address === address) {
-        this.ee.removeListener(BLE_MODULE_EVENTS.discovered, cb);
-        this.stopScanning();
-        device.connect(this.onDeviceConnect.bind(this, callback));
-      }
-    }
-
-    this.scan();
-    this.ee.on(BLE_MODULE_EVENTS.discovered, cb);
-  }
-
-  onDeviceConnect(callback = () => {}, device) {
-    const deviceAddr = device.address;
-    this.log(`connected to ${ deviceAddr }`);
-    device.updateRssi(rssi => {
-      this.log(`device ${ deviceAddr } rssi: ${ rssi }`);
-    });
-
-    // this.log(`looking for deivce ${ deviceAddr } services`);
-    // device.discoverAllServicesAndCharacteristics(({ services, characteristics }) => {
-    //   this.log(`founded for device ${ deviceAddr } next services`);
-    //   this.log(services);
-    //   this.log(`founded for device ${ deviceAddr } next characteristics`);
-    //   this.log(characteristics);
-    // });
-
-    callback(device.address);
-  }
-
-  getDeviceByAddress (address) {
+  _getDeviceByAddress(address) {
     return this.devices.find(device => device.address === address);
   }
 
-  log(msg) {
+  _log(msg) {
     console.log(`BLE: ${ msg }`);
   }
 
-  startScanning() {
+  _startScanning() {
     if (this.isScanning) return; 
     noble.startScanning();
     this.isScanning = true;
-    this.log('scanning stated');
+    this._log('scanning started');
   }
 
-  scan() {
+  _scan() {
     const cb = (state) => {
       if (this.currentState == BLE_MODULE_STATE.poweredOn) {
         this.ee.removeListener(BLE_MODULE_EVENTS.stateChange, cb);
-        this.startScanning();
+        this._startScanning();
       };
     };
 
     if (this.currentState === BLE_MODULE_STATE.poweredOn) {
-      this.startScanning();
+      this._startScanning();
     } else {
       this.ee.on(BLE_MODULE_EVENTS.stateChange, cb)
     }
   }
 
-  stopScanning() {
+  _stopScanning() {
     if (!this.isScanning) return;
     this.isScanning = false;
     noble.stopScanning();
-    this.log('scanning stoped');
+    this._log('scanning stoped');
   }
 
   

@@ -6,7 +6,7 @@ class BLEDevice {
     this.services;
     this.rssi;
     this.isConnected = false;
-    this.address = device._noble.address;
+    this.address = device.address;
   }
 
   getAddress() {
@@ -14,11 +14,24 @@ class BLEDevice {
   }
 
   connect(cb = () => {}) {
+    this._log('connecting');
+    this._checkStatus();
+    if (this.isConnected) {
+      this.disconect(() => {
+        this.connect(cb);
+      });
+      return;
+    }
+
     this.device.connect((err) => {
       if (err) throw err;
       this.isConnected = true;
-      cb(this);
-    })
+      this._log('connected');
+
+      this.discoverAllServicesAndCharacteristics((data) => {
+        cb(this, data);
+      });
+    });
   }
 
   disconect(cb = () => {}) {
@@ -43,8 +56,14 @@ class BLEDevice {
     if (this.services && this.characteristics) {
       cb({ services: this.services, characteristics: this.characteristics });
     }
+
+    this._log('looking for service and characteristics');
+
     this.device.discoverAllServicesAndCharacteristics((err, services, characteristics) => {
       if (err) throw err;
+
+      this._log('services and characteristics founded');
+
       this.services = services;
       this.characteristics = characteristics.map(characteristic => {
         return new BLEMasterCharacteristic({
@@ -72,6 +91,14 @@ class BLEDevice {
       const characteristic = this.characteristics.find(({ uuid }) => characteristicUUID === uuid);
       cb(characteristic);
     });
+  }
+
+  _checkStatus() {
+    this.isConnected = this.device.state === 'connected';
+  }
+
+  _log(msg) {
+    console.log(`BLE ${ this.address }: ${ msg }`)
   }
 }
 

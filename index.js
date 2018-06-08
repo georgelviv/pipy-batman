@@ -1,76 +1,17 @@
 const { BLETarget, WSServer } = require('./configs');
-const initBLE = require('./src').BLE.initBLE;
-const WSClient = require('./src').WSClient;
+const Batman = require('./src').Batman;
 
-const getTimeDiff = require('./src/helpers').getTimeDiff;
+let safeLevel = 0;
 
-class Batman {
-  constructor(configs) {
-    this.configs = configs;
+const argv = process.argv[2];
+const level = process.argv[3];
 
-    this.connectToBLE();
-  }
-
-  onCharacteristicReceive(characteristic) {
-    this.bleService = characteristic;
-    this.connectToWSS();
-  }
-
-  readSensorData(cb) {
-    this.bleService.read(cb);
-  }
-
-  handleWSSMsg(message) {
-    switch (message.type) {
-      case 'request':
-        if (message.data === 'get_dht_sensor_data') {
-          const timeBeforeSensorRead = new Date();
-          this.readSensorData((data) => {
-            data.bluetoothLatency = getTimeDiff(timeBeforeSensorRead);
-            this.wssConnection.sendMsg({
-              to: message.from,
-              from: 'batman',
-              type: 'response',
-              data: data,
-              messageTime: message.date
-            })
-          });
-        }
-    }
-  }
-
-  onWSConnection(connection) {
-    this.wssConnection = connection;
-
-    connection.onMsg(message => {
-      this.handleWSSMsg(message)
-    });
-
-    connection.sendMsg({
-      type: 'meta',
-      name: 'batman'
-    });
-  }
-
-  connectToBLE() {
-    initBLE({
-      config: this.configs.BLETarget,
-      onCharacteristicReceive: this.onCharacteristicReceive.bind(this)
-    });
-  }
-
-  connectToWSS() {
-    const { WSServer } = this.configs;
-
-    const wsClient = new WSClient({
-      port: WSServer.port,
-      serverLink: WSServer.ip,
-      onConnection: this.onWSConnection.bind(this),
-      reconnectTimeout: WSServer.reconnectTimeout
-    });
-  }
+if (argv === '--safe' && level) {
+  safeLevel = Number(level);
 }
 
+console.log(`Running with safe level: ${ safeLevel }`);
+
 new Batman({
-  WSServer, BLETarget
+  WSServer, BLETarget, safeLevel
 });

@@ -34,7 +34,7 @@ class MushroomReveice {
   }
 
   logData() {
-    console.log('Lefts:', this.getEstimatedTimeLeft() / 1000, ' Percentage', this.getPercentageProgress());
+    console.log('BLE Mushroom: Lefts:', this.getEstimatedTimeLeft() / 1000, ' Percentage', this.getPercentageProgress());
   }
 
   parseMushroom(mushroom) {
