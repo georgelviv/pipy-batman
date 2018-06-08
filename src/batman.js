@@ -29,7 +29,10 @@ class Batman {
 
   readSensorData(cb) {
     if (this.isIOTMocked) {
-      cb(this._getMockData());
+      const latencyTime = Math.floor(Math.random() * 200) + 1800;
+      setTimeout(() => {
+        cb(this._getMockData());
+      }, latencyTime);
     } else {
       this.bleService.read(cb);
     }
@@ -114,15 +117,17 @@ class Batman {
   }
 
   _getMockData() {
+    const sensorReadLatancy = Math.floor(Math.random() * 400) + 1300;
+    const rssi = -(Math.floor(Math.random() * 5) + 30);
     return { 
       type: 'text',
       data:
         { 
           temperature: '29.0*C',
           humidity: '19.0%',
-          sensorReadLatancy: 1777 
+          sensorReadLatancy 
         },
-      rssi: -33 
+      rssi 
     };
   }
 }

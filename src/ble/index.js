@@ -10,7 +10,7 @@ const initBLE = ({ config, onCharacteristicReceive }) => {
 
       targetCharacteristic.read((data) => {
         console.log('I can read data from sensor:', data);
-        onCharacteristicReceive(characteristics);
+        onCharacteristicReceive(targetCharacteristic);
       });
       
     });
