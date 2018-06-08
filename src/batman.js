@@ -77,7 +77,7 @@ class Batman {
   connectToWSS() {
     const { WSServer } = this.configs;
 
-    console.log('connecting to wss');
+    console.log(`connecting to wss ${ WSServer.ip }:${WSServer.port}`);
 
     const wsClient = new WSClient({
       port: WSServer.port,

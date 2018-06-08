@@ -1,14 +1,10 @@
-const { BLETarget, WSServer } = require('./configs');
+let { BLETarget, WSServer } = require('./configs');
 const Batman = require('./src').Batman;
+const argv = require('minimist')(process.argv.slice(2));
 
 let safeLevel = 0;
-
-const argv = process.argv[2];
-const level = process.argv[3];
-
-if (argv === '--safe' && level) {
-  safeLevel = Number(level);
-}
+if (argv.safe)  safeLevel = Number(argv.safe);
+if (argv.wsip) WSServer.ip = argv.wsip;
 
 console.log(`Running with safe level: ${ safeLevel }`);
 

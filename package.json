@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/georgelviv/pipy-batman#readme",
   "dependencies": {
+    "minimist": "^1.2.0",
     "noble": "^1.9.1",
     "websocket": "^1.0.26"
   }
